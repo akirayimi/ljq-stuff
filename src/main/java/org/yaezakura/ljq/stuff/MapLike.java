@@ -4,6 +4,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.TimeUnit;
@@ -42,8 +43,11 @@ public class MapLike {
 	
 	public static void main(String[] args) throws IOException {
 		fillMap();
+		int loopCnt = 0;
 		while (stuff_urlMap.size() != 0) {
+			System.out.println("loop " + loopCnt++ + " start.");
 			detail();
+			System.out.println("loop " + loopCnt + " end, left " + stuff_urlMap.size());
 		}
 	}
 	
@@ -98,10 +102,17 @@ public class MapLike {
 
 
 	public static void detail() throws IOException {
-		for (Entry<String, String> entry : stuff_urlMap.entrySet()) {
+		Iterator<Entry<String, String>> entryItr = stuff_urlMap.entrySet().iterator();
+		while (entryItr.hasNext()){
+			Entry<String, String> entry = entryItr.next();
 			String name = entry.getKey();
 			String url = entry.getValue();
-			Document detailPage = Jsoup.connect(url).get();
+			Document detailPage;
+			try{
+				detailPage = Jsoup.connect(url).get();
+			} catch(Exception e){
+				continue;
+			}
 			Element div = detailPage.getElementById("regcert_tab");
 			Elements dls = div.children();
 			for (int i = 0; i < dls.size(); i++) {
@@ -124,7 +135,7 @@ public class MapLike {
 				}
 				out.println("-----------------------------");
 			}
-
+			entryItr.remove();
 		}
 	}
 
